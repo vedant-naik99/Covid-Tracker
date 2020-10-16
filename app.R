@@ -21,7 +21,7 @@ if(!require(shinythemes)) install.packages("shinythemes", repos = "http://cran.u
 
 # set mapping colour for each outbreak
 covid_col = "#cc4c02"
-covid_other_col = "#662506"
+covid_active = "#0282cc"
 
 # import data
 cv_cases = read.csv("input_data/coronavirus.csv")
@@ -266,9 +266,9 @@ basemap = leaflet(plot_map) %>%
     addTiles() %>% 
     addLayersControl(
         position = "bottomright",
-        overlayGroups = c("2019-COVID (new)", "2019-COVID (cumulative)"),
+        overlayGroups = c("2019-COVID (new)", "2019-COVID (cumulative)", "2019-COVID (active)"),
         options = layersControlOptions(collapsed = FALSE)) %>% 
-    hideGroup(c("2019-COVID (cumulative)")) %>%
+    hideGroup(c("2019-COVID (cumulative)","2019-COVID (active)")) %>%
     addProviderTiles(providers$CartoDB.Positron) %>%
     fitBounds(~-100,-50,~80,80) %>%
     addLegend("bottomright", pal = cv_pal, values = ~cv_large_countries$deathsper100k,
@@ -314,10 +314,10 @@ ui <- bootstrapPage(
                                           draggable = TRUE, height = "auto",
                                           
                                           span(tags$i(h6("Reported cases are subject to significant variation in testing policy and capacity between countries.")), style="color:#045a8d"),
-                                          h3(textOutput("reactive_case_count"), align = "right"),
+                                          h3(textOutput("reactive_case_count"), align = "right", style="color:#cc4c02"),
                                           h4(textOutput("reactive_death_count"), align = "right"),
                                           span(h4(textOutput("reactive_recovered_count"), align = "right"), style="color:#006d2c"),
-                                          span(h4(textOutput("reactive_active_count"), align = "right"), style="color:#cc4c02"),
+                                          span(h4(textOutput("reactive_active_count"), align = "right"), style="color:#0282cc"),
                                           h6(textOutput("clean_date_reactive"), align = "right"),
                                           h6(textOutput("reactive_country_count"), align = "right"),
                                           plotOutput("cumulative_plot", height="130px", width="100%"),
@@ -516,10 +516,10 @@ server = function(input, output, session) {
                              label = sprintf("<strong>%s (past 24h)</strong><br/>Confirmed cases: %g<br/>Deaths: %d<br/>Cases per 100,000: %g<br/>Deaths per 100,000: %g", reactive_db_last24h()$country, reactive_db_last24h()$new_cases, reactive_db_last24h()$new_deaths, reactive_db_last24h()$newper100k, reactive_db_last24h()$newdeathsper100k) %>% lapply(htmltools::HTML),
                              labelOptions = labelOptions(
                                  style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_col),
-                                 textsize = "15px", direction = "auto"))
+                                 textsize = "15px", direction = "auto")) %>%
             
              addCircleMarkers(data = reactive_db(), lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~(active_cases)^(1/5), 
-                              fillOpacity = 0.1, color = covid_col, group = "2019-COVID (active)",
+                              fillOpacity = 0.1, color = covid_active, group = "2019-COVID (active)",
                               label = sprintf("<strong>%s (active)</strong><br/>Confirmed cases: %g<br/>Cases per 100,000: %g<br/><i><small>Excludes individuals known to have<br/>recovered (%g) or died (%g).</small></i>", reactive_db()$country, reactive_db()$active_cases, reactive_db()$activeper100k, reactive_db()$recovered, reactive_db()$deaths) %>% lapply(htmltools::HTML),
                               labelOptions = labelOptions(
                                 style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_col),
