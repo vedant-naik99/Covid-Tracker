@@ -522,14 +522,14 @@ server = function(input, output, session) {
             
              addCircleMarkers(data = reactive_db(), lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~(active_cases)^(1/5), 
                               fillOpacity = 0.1, color = covid_active, group = "2019-COVID (active)",
-                              label = sprintf("<strong>%s (active)</strong><br/>Confirmed cases: %g<br/>Cases per 100,000: %g<br/><i><small>Excludes individuals known to have<br/>recovered (%g) or died (%g).</small></i>", reactive_db()$country, reactive_db()$active_cases, reactive_db()$activeper100k, reactive_db()$recovered, reactive_db()$deaths) %>% lapply(htmltools::HTML),
+                              label = sprintf("<strong>%s (active)</strong><br/>Active cases: %g<br/>Cases per 100,000: %g<br/><i><small>Excludes individuals known to have<br/>recovered (%g) or died (%g).</small></i>", reactive_db()$country, reactive_db()$active_cases, reactive_db()$activeper100k, reactive_db()$recovered, reactive_db()$deaths) %>% lapply(htmltools::HTML),
                               labelOptions = labelOptions(
                                 style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_active),
                                 textsize = "15px", direction = "auto")) %>% 
              
-             addCircleMarkers(data = reactive_db(), lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~(recovered_cases)^(1/5), 
+             addCircleMarkers(data = reactive_db(), lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~(recovered)^(1/5), 
                              fillOpacity = 0.1, color = covid_recovered, group = "2019-COVID (recovered)",
-                             label = sprintf("<strong>%s (recovered)</strong><br/>Confirmed cases: %g<br/>Cases per 100,000: %g<br/><i><small>Excludes individuals known to have<br/>recovered (%g) or died (%g).</small></i>", reactive_db()$country, reactive_db()$recovered_cases, reactive_db()$activeper100k, reactive_db()$recovered, reactive_db()$deaths) %>% lapply(htmltools::HTML),
+                             label = sprintf("<strong>%s (recovered)</strong><br/>Recovered cases: %g<br/>Deaths: %d<br/>Cases per 100,000: %g<br/>Deaths per 100,000: %g", reactive_db()$country, reactive_db()$recovered, reactive_db()$deaths, reactive_db()$per100k, reactive_db()$deathsper100k) %>% lapply(htmltools::HTML),
                              labelOptions = labelOptions(
                                style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_recovered),
                                textsize = "15px", direction = "auto")) 
