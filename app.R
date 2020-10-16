@@ -316,8 +316,8 @@ ui <- bootstrapPage(
                                           span(tags$i(h6("Reported cases are subject to significant variation in testing policy and capacity between countries.")), style="color:#045a8d"),
                                           h3(textOutput("reactive_case_count"), align = "right"),
                                           h4(textOutput("reactive_death_count"), align = "right"),
-                                          # span(h4(textOutput("reactive_recovered_count"), align = "right"), style="color:#006d2c"),
-                                          # span(h4(textOutput("reactive_active_count"), align = "right"), style="color:#cc4c02"),
+                                          span(h4(textOutput("reactive_recovered_count"), align = "right"), style="color:#006d2c"),
+                                          span(h4(textOutput("reactive_active_count"), align = "right"), style="color:#cc4c02"),
                                           h6(textOutput("clean_date_reactive"), align = "right"),
                                           h6(textOutput("reactive_country_count"), align = "right"),
                                           plotOutput("cumulative_plot", height="130px", width="100%"),
@@ -518,12 +518,12 @@ server = function(input, output, session) {
                                  style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_col),
                                  textsize = "15px", direction = "auto"))
             
-            # addCircleMarkers(data = reactive_db(), lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~(active_cases)^(1/5), 
-            #                  fillOpacity = 0.1, color = covid_col, group = "2019-COVID (active)",
-            #                  label = sprintf("<strong>%s (active)</strong><br/>Confirmed cases: %g<br/>Cases per 100,000: %g<br/><i><small>Excludes individuals known to have<br/>recovered (%g) or died (%g).</small></i>", reactive_db()$country, reactive_db()$active_cases, reactive_db()$activeper100k, reactive_db()$recovered, reactive_db()$deaths) %>% lapply(htmltools::HTML),
-            #                  labelOptions = labelOptions(
-            #                    style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_col),
-            #                    textsize = "15px", direction = "auto"))  %>%
+             addCircleMarkers(data = reactive_db(), lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~(active_cases)^(1/5), 
+                              fillOpacity = 0.1, color = covid_col, group = "2019-COVID (active)",
+                              label = sprintf("<strong>%s (active)</strong><br/>Confirmed cases: %g<br/>Cases per 100,000: %g<br/><i><small>Excludes individuals known to have<br/>recovered (%g) or died (%g).</small></i>", reactive_db()$country, reactive_db()$active_cases, reactive_db()$activeper100k, reactive_db()$recovered, reactive_db()$deaths) %>% lapply(htmltools::HTML),
+                              labelOptions = labelOptions(
+                                style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_col),
+                                textsize = "15px", direction = "auto")) 
             
                 })
     
