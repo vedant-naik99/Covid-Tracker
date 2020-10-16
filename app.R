@@ -1,5 +1,5 @@
 # update data with automated script
-source("C:/Users/veena/Desktop/R/Covid Tracker/data.R") # run locally to update numbers, but not live on Rstudio server (to avoid possible errors on auto-updates)
+source("data.R") # run locally to update numbers, but not live on Rstudio server (to avoid possible errors on auto-updates)
 
 # load required packages
 if(!require(magrittr)) install.packages("magrittr", repos = "http://cran.us.r-project.org")
@@ -24,11 +24,11 @@ covid_col = "#cc4c02"
 covid_other_col = "#662506"
 
 # import data
-cv_cases = read.csv("C:/Users/veena/Desktop/R/Covid Tracker/input_data/coronavirus.csv")
-countries = read.csv("C:/Users/veena/Desktop/R/Covid Tracker/input_data/countries_codes_and_coordinates.csv")
-worldcountry = geojson_read("C:/Users/veena/Desktop/R/Covid Tracker/input_data/50m.geojson", what = "sp")
-country_geoms = read.csv("C:/Users/veena/Desktop/R/Covid Tracker/input_data/country_geoms.csv")
-cv_states = read.csv("C:/Users/veena/Desktop/R/Covid Tracker/input_data/coronavirus_states.csv")
+cv_cases = read.csv("input_data/coronavirus.csv")
+countries = read.csv("input_data/countries_codes_and_coordinates.csv")
+worldcountry = geojson_read("input_data/50m.geojson", what = "sp")
+country_geoms = read.csv("input_data/country_geoms.csv")
+cv_states = read.csv("input_data/coronavirus_states.csv")
 
 ### MAP FUNCTIONS ###
 # function to plot cumulative COVID cases by date
@@ -206,7 +206,7 @@ write.csv(cv_today %>% select(c(country, date, update, cases, new_cases, deaths,
                                 recovered, new_recovered, active_cases, 
                                 per100k, newper100k, activeper100k,
                                 deathsper100k, newdeathsper100k,
-                                days_since_case100, days_since_death10)), "C:/Users/veena/Desktop/R/Covid Tracker/input_data/coronavirus_today.csv")
+                                days_since_case100, days_since_death10)), "input_data/coronavirus_today.csv")
 
 # aggregate at continent level
 cv_cases_continent = subset(cv_cases, !is.na(continent_level)) %>% select(c(cases, new_cases, deaths, new_deaths, date, continent_level)) %>% group_by(continent_level, date) %>% summarise_each(funs(sum)) %>% data.frame()
@@ -237,7 +237,7 @@ cv_cases_continent$per100k =  as.numeric(format(round(cv_cases_continent$cases/(
 cv_cases_continent$newper100k =  as.numeric(format(round(cv_cases_continent$new_cases/(cv_cases_continent$pop/100000),1),nsmall=1))
 cv_cases_continent$deathsper100k =  as.numeric(format(round(cv_cases_continent$deaths/(cv_cases_continent$pop/100000),1),nsmall=1))
 cv_cases_continent$newdeathsper100k =  as.numeric(format(round(cv_cases_continent$new_deaths/(cv_cases_continent$pop/100000),1),nsmall=1))
-write.csv(cv_cases_continent, "C:/Users/veena/Desktop/R/Covid Tracker/input_data/coronavirus_continent.csv")
+write.csv(cv_cases_continent, "input_data/coronavirus_continent.csv")
 
 # aggregate at global level
 cv_cases_global = cv_cases %>% select(c(cases, new_cases, deaths, new_deaths, date, global_level)) %>% group_by(global_level, date) %>% summarise_each(funs(sum)) %>% data.frame()
@@ -249,7 +249,7 @@ cv_cases_global$per100k =  as.numeric(format(round(cv_cases_global$cases/(cv_cas
 cv_cases_global$newper100k =  as.numeric(format(round(cv_cases_global$new_cases/(cv_cases_global$pop/100000),1),nsmall=1))
 cv_cases_global$deathsper100k =  as.numeric(format(round(cv_cases_global$deaths/(cv_cases_global$pop/100000),1),nsmall=1))
 cv_cases_global$newdeathsper100k =  as.numeric(format(round(cv_cases_global$new_deaths/(cv_cases_global$pop/100000),1),nsmall=1))
-write.csv(cv_cases_global, "C:/Users/veena/Desktop/R/Covid Tracker/input_data/coronavirus_global.csv")
+write.csv(cv_cases_global, "input_data/coronavirus_global.csv")
 
 # select large countries for mapping polygons
 cv_large_countries = cv_today %>% filter(alpha3 %in% worldcountry$ADM0_A3)
@@ -300,13 +300,13 @@ names(country_cols) = cls_names
 
 ### SHINY UI ###
 ui <- bootstrapPage(
-    tags$head(includeHTML("C:/Users/veena/Desktop/R/Covid Tracker/gtag.html")),
+    tags$head(includeHTML("gtag.html")),
     navbarPage(theme = shinytheme("slate"), collapsible = TRUE,
                "COVID-19 tracker", id="nav",
                
                tabPanel("COVID-19 mapper",
                         div(class="outer",
-                            tags$head(includeCSS("C:/Users/veena/Desktop/R/Covid Tracker/styles.css")),
+                            tags$head(includeCSS("styles.css")),
                             leafletOutput("mymap", width="100%", height="100%"),
                             
                             absolutePanel(id = "controls", class = "panel panel-default",
@@ -415,11 +415,13 @@ ui <- bootstrapPage(
                         The number of COVID-19 cases started to escalate more quickly in mid-January and the virus soon spread beyond China's borders. 
                         This story has been rapidly evolving ever since, and each day we are faced by worrying headlines regarding the current state of the outbreak.",
                             tags$br(),tags$br(),
-                            "Code and input data used to generate this Shiny mapping tool are available on ",tags$a(href="https://github.com/eparker12/nCoV_tracker", "Github."),
+                            "Code and input data used to generate this Shiny mapping tool are available on ",tags$a(href="https://github.com/vedant-naik99/Covid-Tracker", "Github."),
                             tags$br(),tags$br(),tags$h4("Sources"),
                             tags$b("The shiny app was built referring to the code of Dr Edward Parker and Quentin Leclerc: "), tags$a(href="https://github.com/eparker12/nCoV_tracker", "Github."),tags$br(),
                             tags$b("Country mapping coordinates: "), tags$a(href="https://github.com/martynafford/natural-earth-geojson", "Martyn Afford's Github repository"),tags$br(),
                             tags$br(),tags$br(),
+                            tags$h4("This site was made by: "),tags$a(href="https://github.com/vedant-naik99/Covid-Tracker", "Vedant Naik"),
+                            tags$br(),
                         )
                )
                

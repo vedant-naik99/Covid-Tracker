@@ -61,10 +61,10 @@ jhu_merge = merge(jhu_cases, jhu_deaths, by = "Date")
 jhu_merge = merge(jhu_merge, jhu_rec, by = "Date")
 jhu_merge$Date = as.Date(jhu_merge$Date, format="%Y-%m-%d")
 jhu_merge$update = 1:nrow(jhu_merge)
-write.csv(jhu_merge, "C:/Users/veena/Desktop/R/Covid Tracker/input_data/jhu_data.csv")
+write.csv(jhu_merge, "input_data/jhu_data.csv")
 
 # load country data
-countries = read.csv("C:/Users/veena/Desktop/R/Covid Tracker/input_data/countries_codes_and_coordinates.csv")
+countries = read.csv("input_data/countries_codes_and_coordinates.csv")
 
 # check all jhu country names have corresponding country data
 jhu_country_list = names(jhu_merge)[grepl("_cases", names(jhu_merge))] %>% str_replace_all(., "_cases", "") 
@@ -157,5 +157,5 @@ collated_data$last_update = NA
 collated_data$last_update[nrow(collated_data)] = paste(format(as.POSIXlt(Sys.time(), "GMT"), "%d %B %Y"))
 
 # save file
-write.csv(collated_data, "C:/Users/veena/Desktop/R/Covid Tracker/input_data/coronavirus.csv", row.names=F)
+write.csv(collated_data, "input_data/coronavirus.csv", row.names=F)
 rm(list = ls())
