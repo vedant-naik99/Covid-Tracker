@@ -22,6 +22,8 @@ if(!require(shinythemes)) install.packages("shinythemes", repos = "http://cran.u
 # set mapping colour for each outbreak
 covid_col = "#cc4c02"
 covid_active = "#0282cc"
+covid_normal = "#0c0d0d"
+covid_recovered = "#0eed28"
 
 # import data
 cv_cases = read.csv("input_data/coronavirus.csv")
@@ -36,7 +38,7 @@ cumulative_plot = function(cv_aggregated, plot_date) {
     plot_df = subset(cv_aggregated, date<=plot_date)
     g1 = ggplot(plot_df, aes(x = date, y = cases, color = region)) + geom_line() + geom_point(size = 1, alpha = 0.8) +
         ylab("cumulative cases") + theme_bw() + 
-        scale_colour_manual(values=c(covid_col)) +
+        scale_colour_manual(values=c(covid_normal)) +
         scale_y_continuous(labels = function(l) {trans = l / 1000; paste0(trans, "K")}) +
         theme(legend.title = element_blank(), legend.position = "", plot.title = element_text(size=10), 
               plot.margin = margin(5, 12, 5, 5))
@@ -49,7 +51,7 @@ new_cases_plot = function(cv_aggregated, plot_date) {
     g1 = ggplot(plot_df_new, aes(x = date, y = new, fill = region)) + 
         geom_bar(position="stack", stat="identity") + 
         ylab("new cases") + theme_bw() + 
-        scale_fill_manual(values=c(covid_col)) +
+        scale_fill_manual(values=c(covid_normal)) +
         scale_y_continuous(labels = function(l) {trans = l / 1000; paste0(trans, "K")}) +
         theme(legend.title = element_blank(), legend.position = "", plot.title = element_text(size=10), 
               plot.margin = margin(5, 12, 5, 5))
@@ -266,9 +268,9 @@ basemap = leaflet(plot_map) %>%
     addTiles() %>% 
     addLayersControl(
         position = "bottomright",
-        overlayGroups = c("2019-COVID (new)", "2019-COVID (cumulative)", "2019-COVID (active)"),
+        overlayGroups = c("2019-COVID (new)", "2019-COVID (cumulative)", "2019-COVID (active)", "2019-COVID (recovered)"),
         options = layersControlOptions(collapsed = FALSE)) %>% 
-    hideGroup(c("2019-COVID (cumulative)","2019-COVID (active)")) %>%
+    hideGroup(c("2019-COVID (cumulative)","2019-COVID (active)", "2019-COVID (recovered)")) %>%
     addProviderTiles(providers$CartoDB.Positron) %>%
     fitBounds(~-100,-50,~80,80) %>%
     addLegend("bottomright", pal = cv_pal, values = ~cv_large_countries$deathsper100k,
@@ -522,9 +524,16 @@ server = function(input, output, session) {
                               fillOpacity = 0.1, color = covid_active, group = "2019-COVID (active)",
                               label = sprintf("<strong>%s (active)</strong><br/>Confirmed cases: %g<br/>Cases per 100,000: %g<br/><i><small>Excludes individuals known to have<br/>recovered (%g) or died (%g).</small></i>", reactive_db()$country, reactive_db()$active_cases, reactive_db()$activeper100k, reactive_db()$recovered, reactive_db()$deaths) %>% lapply(htmltools::HTML),
                               labelOptions = labelOptions(
-                                style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_col),
-                                textsize = "15px", direction = "auto")) 
-            
+                                style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_active),
+                                textsize = "15px", direction = "auto")) %>% 
+             
+             addCircleMarkers(data = reactive_db(), lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~(recovered_cases)^(1/5), 
+                             fillOpacity = 0.1, color = covid_recovered, group = "2019-COVID (recovered)",
+                             label = sprintf("<strong>%s (recovered)</strong><br/>Confirmed cases: %g<br/>Cases per 100,000: %g<br/><i><small>Excludes individuals known to have<br/>recovered (%g) or died (%g).</small></i>", reactive_db()$country, reactive_db()$recovered_cases, reactive_db()$activeper100k, reactive_db()$recovered, reactive_db()$deaths) %>% lapply(htmltools::HTML),
+                             labelOptions = labelOptions(
+                               style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_recovered),
+                               textsize = "15px", direction = "auto")) 
+        
                 })
     
     output$cumulative_plot <- renderPlot({
